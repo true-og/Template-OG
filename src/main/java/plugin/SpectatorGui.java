@@ -1,5 +1,8 @@
+// This is free and unencumbered software released into the public domain.
+// Author: NotAlexNoyle.
 package plugin;
 
+// Import libraries.
 import java.util.ArrayList;
 import java.util.List;
 
