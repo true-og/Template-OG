@@ -22,36 +22,50 @@ public class SpectatorGui extends GUIBase {
 	private Player assignedPlayer;
 
 	public SpectatorGui(JavaPlugin plugin, Player player) {
+
 		super(plugin, player, "&3&lTest GUI", 9, true);
+
 		assignedPlayer = player;
+
 	}
 
 	@Override
 	public void setupItems() {
+
 		int curr = 0;
 		GUIItem item = null;
 		List<String> name = new ArrayList<String>(18);
+
 		for (Player p : Bukkit.getOnlinePlayers()) {
+
 			// Add a new element to the list for each player.
 			name.add("&eTeleport to: &d&l" + p.getName());
+
 		}
 
 		for (Player p : Bukkit.getOnlinePlayers()) {
 
 			item = new GUIItem(Material.PLAYER_HEAD, 1, name.get(curr), p.getName());
-			item.button(new GUIButton() {
+			GUIButton guibutton = new GUIButton() {
+
 				@Override
 				public boolean leftClick() {
+
 					assignedPlayer.closeInventory();
 					assignedPlayer.teleport(p);
+
 					return true;
+
 				}
 
 				@Override public boolean leftClickShift() { return false; }
 				@Override public boolean rightClick() { return false; }
 				@Override public boolean rightClickShift() { return false; }
 
-			});
+			};
+
+			item.button(guibutton);
+
 			addItem(curr, item);
 			curr = nextCurr(curr);
 
@@ -60,20 +74,32 @@ public class SpectatorGui extends GUIBase {
 	}
 
 	private int nextCurr(int curr) {
-		if (curr == 3)
+
+		if (curr == 3) {
+
 			return 6;
-		else
+
+		}
+		else {
+
 			return (curr += 1);
+
+		}
+
 	}
 
 	public static ArrayList<TextComponent> convertToTextComponents(List<String> stringList) {
-		ArrayList<TextComponent> textComponents = new ArrayList<TextComponent>(18);
 
+		ArrayList<TextComponent> textComponents = new ArrayList<TextComponent>(18);
 		for (String str : stringList) {
+
 			TextComponent textComponent = LegacyComponentSerializer.legacyAmpersand().deserialize(str);
 			textComponents.add(textComponent);
+
 		}
 
 		return textComponents;
+
 	}
+
 }
