@@ -6,4 +6,4 @@
 	url = https://github.com/NotAlexNoyle/Utilities-OG
 [submodule "libs/GxUI"]
 	path = libs/GxUI
-	url = git@github.com:gxorge/GxUI
+	url = https://github.com/gxorge/GxUI
