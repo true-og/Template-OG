@@ -2,6 +2,9 @@
 // Author: NotAlexNoyle.
 package plugin;
 
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
 // Import libraries.
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -9,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 
 import net.trueog.diamondbankog.DiamondBankOG;
+import net.trueog.diamondbankog.PostgreSQL;
 import net.trueog.diamondbankog.PostgreSQL.BalanceType;
 
 // Hook into Bukkit's Listener.
@@ -20,15 +24,20 @@ public class Listeners implements Listener {
 	public void onBlockBreak(BlockBreakEvent event) {
 
 		// Open a spectator GUI for the player who broke the block.
-		//new SpectatorGui(TemplateOG.getPlugin(), event.getPlayer()).open(true);
+		// new SpectatorGui(TemplateOG.getPlugin(), event.getPlayer()).open(true);
 
-		DiamondBankOG diamondBankPlugin = new DiamondBankOG();
-		diamondBankPlugin.getPlayerBalance(event.getPlayer().getUniqueId(), BalanceType.ALL)
-		.thenAccept(balance -> {
-			String formattedBalance = "&BYour balance is: " + String.valueOf(balance.getBankBalance());
-			Utils.templateOGPlaceholderMessage(event.getPlayer(), formattedBalance);
-		}).exceptionally(error -> {
-			TemplateOG.getPlugin().getLogger().info("Error fetching balance: " + error.getMessage());
+		UUID playerUUID = event.getPlayer().getUniqueId();
+		BalanceType balanceType = BalanceType.ALL;
+
+		DiamondBankOG diamondBank = DiamondBankOG.getInstance();
+
+		CompletableFuture<PostgreSQL.PlayerBalance> balanceFuture = diamondBank.getPlayerBalance(playerUUID, balanceType);
+
+		balanceFuture.thenAccept(balance -> {
+			Utils.templateOGPlaceholderMessage(event.getPlayer(), "Your current bank balance is: " + balance);
+		}).exceptionally(throwable -> {
+			// Handle any errors that might occur while fetching the balance
+			TemplateOG.getPlugin().getLogger().info("Error getting player balance: " + throwable.getMessage());
 			return null;
 		});
 

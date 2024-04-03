@@ -2,6 +2,10 @@ package plugin;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
+import io.github.miniplaceholders.api.Expansion;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.Tag;
+
 public class TemplateOG extends JavaPlugin {
 
 	private static TemplateOG plugin;
@@ -11,8 +15,7 @@ public class TemplateOG extends JavaPlugin {
 		plugin = this;
 
 		getServer().getPluginManager().registerEvents(new Listeners(), this);
-		DiamondBankPlaceholder balancePlaceholder = new DiamondBankPlaceholder();
-		balancePlaceholder.registerExpansion();
+		registerExpansion();
 
 	}
 
@@ -22,29 +25,16 @@ public class TemplateOG extends JavaPlugin {
 
 	}
 
-	/*public static void registerExpansion() {
-		Expansion.Builder builder = Expansion.builder("diamondbank_og_balance").filter(Player.class);
+	public void registerExpansion() {
 
-		builder.audiencePlaceholder("name", (audience, ctx, queue) -> {
-			final Player player = (Player) audience;
-			DiamondBankOG diamondBankPlugin = new DiamondBankOG();
-			diamondBankPlugin.getPlayerBalance(player.getUniqueId(), BalanceType.ALL)
-			.thenAccept(balance -> {
-				String formattedBalance = "&BYour balance is: " + String.valueOf(balance.getBankBalance());
-				Utils.templateOGPlaceholderMessage(player, formattedBalance);
-			}).exceptionally(error -> {
-				player.sendMessage("Error fetching balance.");
-				plugin.getLogger().info("Error fetching balance: " + error.getMessage());
-				return null;
-			});
+		// Create <diamondbankog_balance> placeholder.
+		Expansion expansion = Expansion.builder("diamondbankog").globalPlaceholder("balance", (queue, ctx) -> {
+			int value = 500;
+			return Tag.selfClosingInserting(Component.text(value));
+		}).build();
 
-			TextComponent nameHandler = LegacyComponentSerializer.legacyAmpersand().deserialize(player.getName());
-			return Tag.selfClosingInserting(nameHandler); 
-		}).globalPlaceholder("tps", (ctx, queue) -> Tag.selfClosingInserting(Component.text(Bukkit.getTPS()[0]))).build();
-
-		Expansion expansion = builder.build();
 		expansion.register();
 
-	}*/
+	}
 
 }
