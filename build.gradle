@@ -3,7 +3,7 @@ plugins {
     id 'java' // Tell gradle this is a java project.
     id 'com.github.johnrengelman.shadow' version '8.1.1' // Import utility to package libraries into .jar file.
     id 'eclipse' // Import eclipse plugin for IDE integration.
-    id 'org.jetbrains.kotlin.jvm' version '1.9.22' // Import kotlin jvm plugin for kotlin/java integration.
+    id 'org.jetbrains.kotlin.jvm' version '1.9.23' // Import kotlin jvm plugin for kotlin/java integration.
 
 }
 
@@ -21,19 +21,18 @@ def apiVersion = "1.19" // Declare minecraft server target version.
 
 task fetchAndBuildDependencies {
     doLast {
-        if (!project.ext.has('dependenciesFetched')) { // Add a property
+        if (! project.ext.has('dependenciesFetched')) { // Add a property
             project.ext.set('dependenciesFetched', true) 
             new File('depends').eachLine { line -> 
-            def components = line.split(" ") // Split the line
-            def repoUrl = components[0] 
-            def ref = components[1]
-            def localPath = components[2]
+                def components = line.split(" ") // Split the line
+                def repoUrl = components[0] 
+                def ref = components[1]
+                def localPath = components[2]
 
-            // Build
-            exec {
-                workingDir = projectDir 
-                commandLine("./gradlew", "build") 
-            }
+                exec {
+                    workingDir = projectDir 
+                    commandLine("./gradlew", "build") 
+                }
             }
         }
     }
@@ -78,7 +77,6 @@ dependencies {
     implementation project(':libs:Utilities-OG')
     implementation project(':libs:GxUI')
     implementation project(':libs:DiamondBank-OG')
-    
 
 }
 
@@ -101,6 +99,10 @@ tasks.jar.configure {
 tasks.shadowJar.configure {
 
     archiveClassifier = null
+
+    from("LICENSE") {
+        into("/")
+    }
 
 }
 
