@@ -1,1 +1,5 @@
-# Template-OG Config File
+# Template-OG Config Options
+
+templateBool: true
+templateInt: 1
+templateDouble: 0.5
