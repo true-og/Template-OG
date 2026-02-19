@@ -1,6 +1,5 @@
 package plugin;
 
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
@@ -58,7 +57,7 @@ public class Listeners implements Listener {
          * });
          */
 
-        save(TemplateOG.config(), Bukkit.getOfflinePlayer("TheMonsterEric"));
+        // save(TemplateOG.config(), Bukkit.getOfflinePlayer("TheMonsterEric"));
 
     }
 

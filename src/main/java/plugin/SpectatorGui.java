@@ -11,8 +11,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.trueog.gxui.GUIBase;
 import net.trueog.gxui.GUIButton;
 import net.trueog.gxui.GUIItem;
@@ -97,21 +95,6 @@ public class SpectatorGui extends GUIBase {
             return (curr += 1);
 
         }
-
-    }
-
-    public static ArrayList<TextComponent> convertToTextComponents(List<String> stringList) {
-
-        final ArrayList<TextComponent> textComponents = new ArrayList<>(18);
-        for (int i = 0; i < stringList.size(); i++) {
-
-            final String str = stringList.get(i);
-            final TextComponent textComponent = LegacyComponentSerializer.legacyAmpersand().deserialize(str);
-            textComponents.add(textComponent);
-
-        }
-
-        return textComponents;
 
     }
 

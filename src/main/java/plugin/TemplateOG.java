@@ -2,10 +2,12 @@
 // Author: NotAlexNoyle.
 package plugin;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import net.trueog.diamondbankog.DiamondBankAPIJava;
+import net.trueog.diamondbankog.api.DiamondBankAPIJava;
 
 public class TemplateOG extends JavaPlugin {
 
@@ -23,19 +25,21 @@ public class TemplateOG extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new Listeners(), this);
 
-        /*
-         * final RegisteredServiceProvider<DiamondBankAPIJava> provider =
-         * getServer().getServicesManager() .getRegistration(DiamondBankAPIJava.class);
-         * 
-         * if (provider == null) {
-         * 
-         * getLogger().severe("DiamondBank-OG API is null – disabling plugin.");
-         * Bukkit.getPluginManager().disablePlugin(this); return;
-         * 
-         * }
-         * 
-         * diamondBankAPI = provider.getProvider();
-         */
+        final RegisteredServiceProvider<DiamondBankAPIJava> provider = getServer().getServicesManager()
+                .getRegistration(DiamondBankAPIJava.class);
+
+        if (provider == null) {
+
+            getLogger().severe("DiamondBank-OG API is null – disabling plugin.");
+
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+
+        } else {
+
+            diamondBankAPI = provider.getProvider();
+
+        }
 
     }
 
