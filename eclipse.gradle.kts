@@ -17,6 +17,7 @@ val sourcePluginProjects =
         .map { it.path }
         .filter { it.startsWith(":libs:") }
         .distinct()
+val sourcePluginProjectNames = sourcePluginProjects.map { it.substringAfterLast(":") }.toSet()
 sourcePluginProjects.forEach { evaluationDependsOn(it) }
 
 val ideLibs: Configuration by
@@ -94,8 +95,10 @@ val injectIdeLibs =
                 val kind = n.attributes?.getNamedItem("kind")?.nodeValue
                 val p = n.attributes?.getNamedItem("path")?.nodeValue ?: ""
                 val isIdeLibEntry = kind == "lib" && (p == dirPath || p.startsWith("$dirPath/"))
+                val sourceProjectPath = p.removePrefix("/")
                 val isHalfImportedSourceModule = kind == "src" && p.startsWith("/libs:")
-                if (isIdeLibEntry || isHalfImportedSourceModule) {
+                val isSourcePluginModule = kind == "src" && sourceProjectPath in sourcePluginProjectNames
+                if (isIdeLibEntry || isHalfImportedSourceModule || isSourcePluginModule) {
                     toRemove += n
                 }
             }
