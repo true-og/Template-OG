@@ -1,5 +1,6 @@
 /* This is free and unencumbered software released into the public domain */
 
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.plugins.ide.eclipse.model.EclipseModel
 import java.nio.file.Files
 import javax.xml.parsers.DocumentBuilderFactory
@@ -8,21 +9,21 @@ import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 
-val kotlinAttribute: Attribute<Boolean> by rootProject.extra
-
-val kotlinPluginProjects = configurations
-.getByName("compileClasspath")
-.allDependencies
-    .filterIsInstance<ProjectDependency>()
-    .filter { it -> it.attributes.getAttribute(kotlinAttribute) != null }
-    .map { it.path }
-kotlinPluginProjects.forEach { evaluationDependsOn(it) }
+val sourcePluginProjects =
+    configurations
+        .getByName("compileClasspath")
+        .allDependencies
+        .filterIsInstance<ProjectDependency>()
+        .map { it.path }
+        .filter { it.startsWith(":libs:") }
+        .distinct()
+sourcePluginProjects.forEach { evaluationDependsOn(it) }
 
 val ideLibs: Configuration by
-configurations.creating {
-    isCanBeResolved = true
-    isCanBeConsumed = false
-}
+    configurations.creating {
+        isCanBeResolved = true
+        isCanBeConsumed = false
+    }
 
 configure<EclipseModel> {
     project {
@@ -38,13 +39,14 @@ val hashRegex = Regex("-[0-9a-fA-F]{10}(?=\\.jar$)") // Black magic.
 
 val copyTasks = mutableListOf<TaskProvider<Copy>>()
 
-kotlinPluginProjects.forEach { path ->
+sourcePluginProjects.forEach { path ->
     val sub = project(path)
-    val shadowJarProv = sub.tasks.named("shadowJar")
+    val archiveTaskName = if ("shadowJar" in sub.tasks.names) "shadowJar" else "jar"
+    val archiveTask = sub.tasks.named<Jar>(archiveTaskName)
     val copyTask =
         tasks.register<Copy>("ideCopy${sub.name.replaceFirstChar(Char::titlecase)}") {
-            dependsOn(shadowJarProv)
-            from(shadowJarProv)
+            dependsOn(archiveTask)
+            from(archiveTask.flatMap { it.archiveFile })
             into(ideLibDir)
             rename { it.replace(hashRegex, "") } // Remove git commit hash from jarfile.
         }
@@ -83,7 +85,7 @@ val injectIdeLibs =
                     }
                 }
 
-            // Remove any entry that points to ide-libs dir (folder or jars) to avoid dupes
+            // Remove any entry that points to ide-libs dir or unresolved :libs: project refs.
             val toRemove = mutableListOf<org.w3c.dom.Node>()
             val list = root.getElementsByTagName("classpathentry")
             val dirPath = ideLibDir.get().asFile.absolutePath
@@ -91,7 +93,9 @@ val injectIdeLibs =
                 val n = list.item(i)
                 val kind = n.attributes?.getNamedItem("kind")?.nodeValue
                 val p = n.attributes?.getNamedItem("path")?.nodeValue ?: ""
-                if (kind == "lib" && (p == dirPath || p.startsWith("$dirPath/"))) {
+                val isIdeLibEntry = kind == "lib" && (p == dirPath || p.startsWith("$dirPath/"))
+                val isHalfImportedSourceModule = kind == "src" && p.startsWith("/libs:")
+                if (isIdeLibEntry || isHalfImportedSourceModule) {
                     toRemove += n
                 }
             }
