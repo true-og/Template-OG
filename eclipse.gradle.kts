@@ -27,7 +27,7 @@ val ideLibs: Configuration by
 
 configure<EclipseModel> {
     project {
-        name = "Template-OG-Plugin"
+        name = "${rootProject.name}-Plugin"
     }
     classpath {
         plusConfigurations.add(ideLibs)
